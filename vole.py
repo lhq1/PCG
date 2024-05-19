@@ -44,9 +44,17 @@ def cost_vope(m, goal=128, bit_len=128):
     return from_bit_to_mb(cost_base_vole + cost_ot + cost_com)
 
 
-for i in (128, 256, 512, 1024):
-    for j in (80, 128):
-        print("Naive VOLE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_naive_vole(i, j)))
-        print("Subfield VOLE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_subfield_vole(i, j)))
-        print("Our VOPE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_vope(i, j)))
-    print("\n")
+def other_cost(m,bit_len=128):
+    cost_vole = 16 * m*m*bit_len
+    cost_sacrifice = 2* m * m * bit_len
+    return from_bit_to_mb(cost_vole + cost_sacrifice)
+
+
+if __name__ == "__main__":
+   for i in (128, 256, 512, 1024):
+        print("The cost of VOLE and sacrifce: {} MB".format(other_cost(i)))
+        for j in (80, 128):
+            print("Naive VOLE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_naive_vole(i, j)))
+            print("Subfield VOLE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_subfield_vole(i, j)))
+            print("Our VOPE: Length: {}, Security: {}, Com cost: {:.2f} MB".format(i, j, cost_vope(i, j)))
+        print("\n")
