@@ -1,0 +1,70 @@
+import math
+import matplotlib.pyplot as plt
+
+def con_RMFE_small(degree, n=2, p=2):
+    assert not n>p+1
+    extension = degree * (n-1) + 1
+    return (extension/n, extension)
+
+
+def refer(goal, lis):
+    for i in range(len(lis)):
+        if not goal > lis[i]:
+            return i
+    print("Too large!")
+
+
+def con_RMFE_large(goal, degree, lis):
+   genus = refer(goal, lis)
+   tmp = goal +degree-2*degree*genus + 1
+   n = math.ceil(tmp/degree)
+   extension = degree * (n+2*genus-1)+1
+   return extension/n
+
+
+def con_RMFE_all(goal, degree, n=2):
+    ratio_small, extension = con_RMFE_small(degree, n)
+    # Now we only give concrete lists about the choice of genus
+    # We may further show how to compute genus, which may related to size of extension field
+    lis = find_lis(degree, n)
+    for i in range(len(lis)):
+        lis[i] = extension * (degree * (lis[i] + 2 * i - 1) + 1)
+    ratio_large = con_RMFE_large(goal, degree, lis)
+    return ratio_small*ratio_large
+
+
+def find_lis(degree, n):
+    if degree == 2:
+        if n == 2:
+            return [9, 14, 18]
+        elif n == 3:
+            return [33, 44, 53, 64]
+    elif degree == 3:
+        if n == 2:
+            return [17]
+        if n == 3:
+            return [129, 150, 172]
+    else:
+        return [1+math.pow(2, (n-1)*degree+1)]
+
+
+if __name__ == "__main__":
+    degree = 2
+    lis1 = []
+    lis2 = []
+    lis3 = []
+    print(con_RMFE_all(80, 3, 2))
+    print(con_RMFE_all(80, 2, 3))
+    for i in range(2, 128):
+        lis1.append(i)
+        lis2.append(con_RMFE_all(i, degree, 2))
+        lis3.append(con_RMFE_all(i, degree, 3))
+    lis2[0] = 1.5
+    lis3[0] = lis3[1] = 1.67
+    plt.plot(lis1, lis2, label="(2,{};{})".format(degree+1, degree), color='r')
+    plt.plot(lis1, lis3, label="(3,{};{})".format(2*degree+1, degree), color='b')
+    plt.xlabel("Degree of Galois ring r")
+    plt.ylabel("Ratio of RMFE")
+    plt.legend()
+    plt.title("Concrete ratio of (n,r;{}) RMFE".format(degree))
+    plt.show()
