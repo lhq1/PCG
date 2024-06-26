@@ -1,0 +1,77 @@
+import math
+import matplotlib.pyplot as plt
+from RMFE_concrete import con_RMFE_small
+
+
+def asy_RMFE_large_odd(extension, degree, p=2):
+    m = (extension-1)//2
+    epsilon = 1/(math.pow(p, m)-1)
+    return degree + degree * (3+epsilon) / (math.pow(p, m+1)-1)
+
+
+def asy_RMFE_large_even(extension, degree, p=2):
+    sqrt_q = math.pow(p, extension//2)
+    return degree + 2 * degree / (sqrt_q-1)
+
+
+def asy_RMFE_all(degree, n=2, p=2):
+    ratio_small, extension = con_RMFE_small(degree, n, p)
+    if extension % 2:
+        return ratio_small * asy_RMFE_large_odd(extension, degree, p)
+    else:
+        return ratio_small * asy_RMFE_large_even(extension, degree, p)
+
+
+def asy_RMFE_all_optimal(degree, p=2):
+    lis = []
+    for i in range(2, p+2):
+        lis.append(asy_RMFE_all(degree, i, p))
+    if degree == 4:
+        print(p, lis)
+    return min(lis)
+
+
+if __name__=="__main__":
+    #print("When start length is 2, the ratio is {}".format(asy_RMFE_all(degree, 2)))
+    #print("When start length is 3, the ratio is {}".format(asy_RMFE_all(degree, 3)))
+    goal = "degree"
+    if goal == "degree":
+        lis1 = []
+        lis2 = []
+        lis3 = []
+        for d in range(2, 11):
+            lis1.append(d)
+            lis2.append(asy_RMFE_all(d, 2, 2))
+            lis3.append(asy_RMFE_all(d, 3, 2))
+        plt.plot(lis1, lis2, label="(2,1+D;D)", color='r')
+        plt.plot(lis1, lis3, label="(3,1+2D;D)", color='b')
+        print(lis2)
+        print(lis3)
+        plt.xlabel("Degree of RMFE")
+        plt.ylabel("Ratio of RMFE")
+        plt.legend()
+        plt.title(r"Asymptotic ratio of degree-D RMFE over $Z_{2^k}$")
+        plt.show()
+    if goal == "field":
+        lis1 = [2, 3, 5, 7, 11, 13, 17]
+        lis2 = []
+        lis3 = []
+        lis4 = []
+        for p in lis1:
+            lis2.append(asy_RMFE_all_optimal(2, p))
+            lis3.append(asy_RMFE_all_optimal(3, p))
+            lis4.append(asy_RMFE_all_optimal(4, p))
+        print(lis2)
+        print(lis3)
+        print(lis4)
+        plt.plot(lis1, lis2, marker='o', label="degree-2", color='r')
+        plt.plot(lis1, lis3, marker='o', label="degree-3", color='b')
+        plt.plot(lis1, lis4, marker='o', label="degree-4", color='y')
+        plt.xlabel("p")
+        plt.ylabel("Ratio of RMFE")
+        plt.legend()
+        plt.title("Asymptotic ratio of degree-D RMFE for various primes p")
+        plt.show()
+
+
+
