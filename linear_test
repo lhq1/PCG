@@ -1,0 +1,100 @@
+import math
+
+
+def H_q(x, q):
+    """
+    q进制熵函数
+    H_q(x) = x * log(q-1, q) - x * log(x, q) - (1-x) * log(1-x, q)
+
+    参数:
+    x: 概率值 (0 <= x <= 1-1/q)
+    q: 进制数 (q >= 2)
+
+    返回:
+    熵值
+    """
+    # 处理边界情况
+    if x == 0:
+        return 0
+    if abs(x - (1 - 1 / q)) < 1e-12:
+        return H_q_max(q)
+
+    # 使用换底公式：log_b(a) = log(a) / log(b)
+    term1 = x * math.log(q - 1) / math.log(q)
+
+    if x > 0:
+        term2 = x * math.log(x) / math.log(q)
+    else:
+        term2 = 0
+
+    if (1 - x) > 0:
+        term3 = (1 - x) * math.log(1 - x) / math.log(q)
+    else:
+        term3 = 0
+
+    return term1 - term2 - term3
+
+
+def H_q_max(q):
+    """计算最大熵值 H_q(1-1/q)"""
+    x_max = 1 - 1 / q
+    term1 = x_max * math.log(q - 1) / math.log(q)
+    term2 = x_max * math.log(x_max) / math.log(q)
+    term3 = (1 / q) * math.log(1 / q) / math.log(q)
+    return term1 - term2 - term3
+
+
+def inverse_H_q_bisection(y, q, tol=1e-10, max_iter=1000):
+    """
+    使用二分法求解熵函数的逆函数
+
+    参数:
+    y: 熵值 (0 <= y <= H_q(1-1/q))
+    q: 进制数
+    tol: 容差
+    max_iter: 最大迭代次数
+
+    返回:
+    x: 使得 H_q(x) = y 的概率值
+    """
+    # 检查输入范围
+    H_max = H_q_max(q)
+    if y < 0 or y > H_max:
+        raise ValueError(f"y必须在[0, {H_max:.6f}]范围内")
+
+    # 边界情况
+    if abs(y) < tol:
+        return 0.0
+    if abs(y - H_max) < tol:
+        return 1 - 1 / q
+
+    # 二分法
+    left = 0.0
+    right = 1 - 1 / q
+
+    for i in range(max_iter):
+        mid = (left + right) / 2
+        H_mid = H_q(mid, q)
+
+        if abs(H_mid - y) < tol:
+            return mid
+
+        if H_mid < y:
+            left = mid
+        else:
+            right = mid
+
+    # 如果达到最大迭代次数，返回当前最佳估计
+    return (left + right) / 2
+
+c_test = [2, 3, 4]
+q_lis = [3, 5, 7, 9, 11, 13, 19, 23, 25, 27, 29, 31, 37, 41, 43, 49]
+for c in c_test:
+
+        distance = inverse_H_q_bisection(1-1/c, math.pow(2, 61)-1)
+        r_set = [0, 4, 8, 12]
+        secPar = 128
+        for r in r_set:
+            t = -(secPar+r) /(math.log(1-distance, 2)*2)
+            print("For c={}, r={}, distance={}, t={}".format(c, r, distance, t))
+
