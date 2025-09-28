@@ -1,5 +1,5 @@
 import math
-
+import matplotlib.pyplot as plt
 
 def H_q(x, q):
     """
@@ -87,14 +87,25 @@ def inverse_H_q_bisection(y, q, tol=1e-10, max_iter=1000):
     # 如果达到最大迭代次数，返回当前最佳估计
     return (left + right) / 2
 
+
+'''
+q_lis = [3, 5, 7, 9, 11, 13, 19, 23, 25, 27, 29, 31, 37, 41, 43,
+         49, 53, 59, 61, 67, 71, 73, 79, 81, 89, 97, 101]
+d_lis = []
+for q in q_lis:
+    d_lis.append(inverse_H_q_bisection(1-1/4, q))
+print(d_lis)
+plt.plot(q_lis, d_lis, marker='o', color='blue')
+plt.xlabel("The field size")
+plt.ylabel("The relative distance")
+plt.show()
+'''
 c_test = [2, 3, 4]
-q_lis = [3, 5, 7, 9, 11, 13, 19, 23, 25, 27, 29, 31, 37, 41, 43, 49]
 for c in c_test:
 
         distance = inverse_H_q_bisection(1-1/c, math.pow(2, 61)-1)
         r_set = [0, 4, 8, 12]
         secPar = 128
         for r in r_set:
-            t = -(secPar+r) /(math.log(1-distance, 2)*2)
+            t = -(secPar+r) /(math.log(1-distance, 2))
             print("For c={}, r={}, distance={}, t={}".format(c, r, distance, t))
-
