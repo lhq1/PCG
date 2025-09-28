@@ -1,7 +1,3 @@
-from vole import *
-import matplotlib.pyplot as plt
-
-from vole import *
 import matplotlib.pyplot as plt
 import pandas as pd
 
